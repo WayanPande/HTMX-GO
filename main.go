@@ -118,6 +118,37 @@ func GetData(c context.Context) map[string][]book {
 	return booksReturn
 }
 
+func GetDataQuery(c context.Context, query string) map[string][]book {
+	db := GetConnection()
+
+	stmt, err := db.Prepare("SELECT * FROM book WHERE title LIKE ?")
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query("%" + query + "%")
+	db.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	var books []book
+
+	for rows.Next() {
+		temp_book := book{}
+		rows.Scan(&temp_book.ID, &temp_book.Title, &temp_book.Author, &temp_book.Quantity)
+		books = append(books, temp_book)
+	}
+	defer rows.Close()
+
+	booksReturn := map[string][]book{
+		"Books": books,
+	}
+
+	return booksReturn
+}
+
 func renderPage(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "index.html", GetData(c))
@@ -161,6 +192,12 @@ func deleteBook(c *gin.Context) {
 	db.Close()
 }
 
+func search(c *gin.Context) {
+	searchQuery := c.PostForm("search")
+
+	c.HTML(http.StatusOK, "list.html", GetDataQuery(c, searchQuery))
+}
+
 func main() {
 	router := gin.Default()
 
@@ -171,6 +208,8 @@ func main() {
 	router.POST("/add-book", addBook)
 
 	router.DELETE("/book/:id", deleteBook)
+
+	router.POST("/search", search)
 
 	// Rest API Stuff
 	router.GET("/books", getBooks)

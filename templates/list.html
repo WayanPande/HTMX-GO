@@ -1,0 +1,17 @@
+<ul class="list-group fs-5 me-5" id="film-list">
+  {{range .Books}} {{block "film-list-element" .}}
+  <li class="list-group-item bg-primary text-white" id="book-{{.ID}}">
+    {{.Title}} - {{.Author}} - {{.Quantity}}
+
+    <button
+      type="button"
+      class="btn btn-danger btn-sm"
+      hx-delete="/book/{{.ID}}"
+      hx-swap="delete"
+      hx-target="#book-{{.ID}}"
+    >
+      Delete
+    </button>
+  </li>
+  {{end}} {{end}}
+</ul>
