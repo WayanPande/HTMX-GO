@@ -29,28 +29,37 @@
     </style>
   </head>
   <body>
-    <div class="row mt-4 g-4">
+    <div class="row mt-4 g-4 p-5">
       <div class="col-8">
-        <h1 class="mb-4">Film list</h1>
+        <h1 class="mb-4">Book list</h1>
         <ul class="list-group fs-5 me-5" id="film-list">
           {{range .Books}} {{block "film-list-element" .}}
-          <li class="list-group-item bg-primary text-white">
+          <li class="list-group-item bg-primary text-white" id="book-{{.ID}}">
             {{.Title}} - {{.Author}} - {{.Quantity}}
 
-            <button type="button" class="btn btn-danger btn-sm">Delete</button>
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              hx-delete="/book/{{.ID}}"
+              hx-swap="delete"
+              hx-target="#book-{{.ID}}"
+            >
+              Delete
+            </button>
           </li>
           {{end}} {{end}}
         </ul>
       </div>
 
       <div class="col-4">
-        <h1 class="mb-4">Add Film</h1>
+        <h1 class="mb-4">Add Book</h1>
 
         <form
           hx-post="/add-book"
           hx-target="#film-list"
           hx-swap="beforeend"
           hx-indicator="#spinner"
+          hx-on::after-request="this.reset()"
         >
           <div class="mb-2">
             <label for="film-title">Title</label>
